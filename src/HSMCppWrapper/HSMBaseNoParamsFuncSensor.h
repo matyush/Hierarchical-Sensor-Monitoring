@@ -6,6 +6,7 @@
 using System::Func;
 using System::String;
 using System::Collections::Generic::List;
+using System::Exception;
 
 namespace hsm_wrapper
 {
@@ -24,10 +25,17 @@ namespace hsm_wrapper
 		typename std::conditional<std::is_arithmetic_v<T>, T, String^>::type
 			Call()
 		{
-			if constexpr (std::is_arithmetic_v<T>)
-				return base->Func();
-			else
-				return gcnew String(base->Func().c_str());
+			try
+			{
+				if constexpr (std::is_arithmetic_v<T>)
+					return base->Func();
+				else
+					return gcnew String(base->Func().c_str());
+			}
+			catch (std::exception& ex)
+			{
+				throw gcnew Exception(gcnew String(ex.what()));
+			}
 		}
 
 	private:
